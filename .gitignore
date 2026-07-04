@@ -6,10 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# Large CSV files 
+data/
+
 # Distribution / packaging
 .Python
 build/
-data/
 develop-eggs/
 dist/
 downloads/
