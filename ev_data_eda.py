@@ -34,7 +34,7 @@ def check_imbalance(df, col):
     return df[col].value_counts(normalize=True)
 
 def find_extreme_values(df, col):
-    return df[df[col] > df[col].quantitle(8.99)]
+    return df[df[col] > df[col].quantile(0.99)]
 
 # Check duplicate rows
 duplicates = df.duplicated().sum()
@@ -55,15 +55,3 @@ categorical_cols = df.select_dtypes(include=['object']).columns
 for col in categorical_cols:
     print("\n", col)
     print(df[col].unique())
-
-# Creates low, medium, high labels for output
-def categorize_demand(rate):
-    if rate < 0.4:
-        return "Low"
-    elif rate < 0.7:
-        return "Medium"
-    else:
-        return "High"
-
-df["demand_level"] = df["utilization_rate"].apply(categorize_demand)
-print(df["demand_level"].value_counts())
