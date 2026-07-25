@@ -14,31 +14,41 @@ plt.rcParams['font.size'] = 11
 # Load the dataset
 df = pd.read_csv('data/austin_ev.csv')
 
-numeric_df = df.select_dtypes(include=np.number)
-pearson_corr = numeric_df.corr(method="pearson")
-spearman_corr = numeric_df.corr(method="spearman")
+# Remove features that cause leakage or are not useful
+drop_cols = [
+    "timestamp", 
+    "station_id",
+    "station_name",
+    "city",
+    "state",                
+    "ports_total",
+    "ports_available",
+    "ports_occupied",
+    "ports_out_of_service",
+    "estimated_wait_time_mins",
+    "current_price",
+    "pricing_type"
+]
 
-target = "utilization_rate"
+df_model = df.drop(columns=drop_cols)
+print(df_model.columns)
 
-print("Pearson Correlation: ")
-print(
-    pearson_corr[target]
-    .sort_values(ascending=False)
-)
+# Select only numeric columns
+numeric_df = df_model.select_dtypes(include=["int64", "float64", "bool"])
 
-print("\nSpearman Correlation: ")
-print(
-    spearman_corr[target]
-    .sort_values(ascending=False)
-)
+# Pearson correlation
+pearson = numeric_df.corr(method="pearson")
+# Sort correlations with utilization_rate
+pearson_target = pearson["utilization_rate"].sort_values(ascending=False)
 
-plt.figure(figsize=(10,8))
+# Spearman correlation
+spearman = numeric_df.corr(method="spearman")
+spearman_target = spearman["utilization_rate"].sort_values(ascending=False)
 
-sns.heatmap(
-    pearson_corr,
-    cmap="coolwarm",
-    center=0
-)
+# Compare both in a table 
+correlation_df = pd.DataFrame({
+    "Pearson": pearson_target,
+    "Spearman": spearman_target
+})
 
-plt.title("Pearson Correlation Matrix")
-plt.show()
+print(correlation_df)
