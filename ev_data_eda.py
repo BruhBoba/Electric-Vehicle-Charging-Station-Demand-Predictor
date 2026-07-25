@@ -55,6 +55,3 @@ categorical_cols = df.select_dtypes(include=['object']).columns
 for col in categorical_cols:
     print("\n", col)
     print(df[col].unique())
-
-
-features = []
