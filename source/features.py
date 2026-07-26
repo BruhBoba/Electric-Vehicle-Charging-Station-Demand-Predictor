@@ -1,4 +1,4 @@
-# Feature selection using correlation matrices  
+# import libraries 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,13 +6,37 @@ import seaborn as sns
 from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
+from sklearn.model_selection import train_test_split
+
+
+# load dataset
+df = pd.read_csv('data/austin_ev.csv') 
+df = df.sort_values(by='timestamp')
+
+# util = utilization rate
+# new col to hold past timestamp's util rate
+df['util_30_mins_ago'] = df['utilization_rate'].shift(1)
+
+# drop first row, cuz util rate is NaN atp
+df = df.dropna(subset=['util_30_mins_ago'])
+
+# assign x and y vals
+y = df['utilization_rate']
+X = df.drop(columns=['utilization_rate', 'timestamp'])
+
+# split data into 80/20 train/test
+# REMOVE RANDOM STATE PARAM B4 DEPLOYING
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=117)
+
+print(f"Training data shape: {X_train.shape}")
+print(f"Testing data shape: {X_test.shape}")
+
+
 
 plt.style.use('seaborn-v0_8-whitegrid')
 plt.rcParams['figure.figsize'] = (12, 6)
 plt.rcParams['font.size'] = 11
 
-# Load the dataset
-df = pd.read_csv('data/austin_ev.csv')
 
 # Remove features that cause leakage or are not useful
 drop_cols = [
