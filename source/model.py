@@ -10,7 +10,7 @@ rf_model = RandomForestRegressor(n_estimators=200, max_depth=15, min_samples_lea
 # train model
 rf_model.fit(x_train_final, y_train)
 
-y_prediction = rf_model.predict(x_test_final)
+rf_prediction = rf_model.predict(x_test_final)
 
 
 # Linear Regression model 
@@ -19,12 +19,12 @@ lr_model = LinearRegression()
 
 lr_model.fit(x_train_final, y_train)
 
-lr_predictions = lr_model.predict(x_test_final)
+lr_prediction = lr_model.predict(x_test_final)
 
 def train_models():
     return (
         rf_model,
-        y_prediction,
+        rf_prediction,
         lr_model,
-        lr_predictions
+        lr_prediction
     )
