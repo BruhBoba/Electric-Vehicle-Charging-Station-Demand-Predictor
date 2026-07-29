@@ -1,15 +1,8 @@
 # import libraries 
 import pandas as pd
-#import numpy as np
-#import matplotlib.pyplot as plt
-#import seaborn as sns
-#from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-
 
 # load dataset
 df = pd.read_csv('data/austin_ev.csv') 
@@ -19,10 +12,10 @@ df = df.sort_values(by='timestamp')
 # new col to hold past timestamp's util rate
 df['util_30_mins_ago'] = df['utilization_rate'].shift(1)
 
-# remove first row cuz new col is empty atp
+# remove first row because new col is empty 
 df = df.dropna(subset=['util_30_mins_ago'])
 
-# remove features that cause leakage or r unnecessary
+# remove features that cause leakage or unnecessary
 drop_cols = [
     "timestamp", "station_id", "station_name", "city", "state",                 
     "ports_total", "ports_available", "ports_occupied", 
@@ -57,12 +50,18 @@ x_test = pd.concat([x_test, amenities_encoded_test], axis=1)
 x_train_encoded = pd.get_dummies(x_train)
 x_test_encoded = pd.get_dummies(x_test)
 
-
+# Align columns of both testing and training data 
+x_train_encoded, x_test_encoded = x_train_encoded.align(
+    x_test_encoded,
+    join="left",
+    axis=1,
+    fill_value=0
+)
 
 correlation_data = x_train_encoded.copy()
 correlation_data['utilization_rate'] = y_train
 
-# pearson correlation: checks 4 linear relationships
+# pearson correlation: checks for linear relationships
 pearson = correlation_data.corr(method="pearson")
 pearson_target = pearson["utilization_rate"].sort_values(ascending=False)
 
@@ -146,23 +145,14 @@ features_to_keep = [
     'network_Blink'
 ]
 
-# create final dfs that hold the features we want to KEEP, lowk couldve js dropped from old ones too
+# create final dfs that hold the features we want to KEEP
 x_train_final = x_train_encoded[features_to_keep]
 x_test_final = x_test_encoded[features_to_keep]
 
-# init model
-rf_model = RandomForestRegressor(random_state=117)
-
-# train model
-rf_model.fit(x_train_final, y_train)
-
-y_prediction = rf_model.predict(x_test_final)
-mae = mean_absolute_error(y_test, y_prediction)
-# the function below is resulting in errors, lowk tis discontinued
-#rmse = mean_squared_error(y_test, y_prediction, squared=False) 
-r2 = r2_score(y_test, y_prediction)
-
-print("--- MODEL REPORT CARD ---")
-print(f"Mean Absolute Error (MAE): {mae:.4f}")  #0.0753
-#print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
-print(f"R-squared (R2): {r2:.4f}")      #0.8534
+def prepare_data():
+    return (
+        x_train_final,
+        x_test_final,
+        y_train,
+        y_test
+    )
