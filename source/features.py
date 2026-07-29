@@ -1,9 +1,9 @@
 # import libraries 
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from datetime import datetime
+#import numpy as np
+#import matplotlib.pyplot as plt
+#import seaborn as sns
+#from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
 from sklearn.model_selection import train_test_split
@@ -38,32 +38,35 @@ x = df_model.drop(columns=['utilization_rate'])
 
 
 # split data into 80/20 train/test
-# REMOVE RANDOM STATE PARAM B4 DEPLOYING
+#--------TO DO: REMOVE RANDOM STATE PARAM B4 DEPLOYING--------
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=117)
 
 # properly encodes amenities feature which has various elements in one long string
-amenities_encoded = x_train['amenities'].str.get_dumies(sep=', ')
-x_train  = x_train.drop(columns=['amenities'])
+amenities_encoded = x_train['amenities_nearby'].str.get_dummies(sep=', ')
+x_train  = x_train.drop(columns=['amenities_nearby'])
 x_train = pd.concat([x_train, amenities_encoded], axis = 1)
 
 # encodes other non-numeric values
 x_train_encoded = pd.get_dummies(x_train)
 
+#print(amenities_encoded)
+#print(x_train_encoded)
+
+
+correlation_data = x_train_encoded.copy()
+correlation_data['utilization_rate'] = y_train
 
 # pearson correlation: checks 4 linear relationships
-pearson = numeric_df.corr(method="pearson")
-# Sort correlations with utilization_rate
+pearson = correlation_data.corr(method="pearson")
 pearson_target = pearson["utilization_rate"].sort_values(ascending=False)
 
 # spearman correlation: checks for any trends (monotonic)
-spearman = numeric_df.corr(method="spearman")
+spearman = correlation_data.corr(method="spearman")
 spearman_target = spearman["utilization_rate"].sort_values(ascending=False)
 
-# Compare both in a table 
-correlation_df = pd.DataFrame({
-    "Pearson": pearson_target,
-    "Spearman": spearman_target
-})
-
-print(correlation_df)
+print("Spearman: \n\t >= 0.2")
+for i in range(len(spearman)):
+    if abs(i) >= 0.2:
+        print("\t" + spearman[i])
+#print(correlation_df)
 

@@ -1,0 +1,46 @@
+Pearson
+    utilization_rate                   1.000000
+    hour_of_day                        0.453762
+    traffic_congestion_index           0.378107
+    util_30_mins_ago                   0.368518
+    location_type_Shopping Center      0.251434
+    is_peak_hour                       0.229136
+    charger_type_DC Fast Charge        0.162964
+    Grocery Store                      0.158213
+    network_Blink                      0.157199
+    Hotel                              0.157199
+    Park                               0.151069
+    Restroom                           0.108376
+    WiFi                               0.107670
+    power_output_kw                    0.063340
+    network_Shell Recharge             0.042758
+    location_type_Hotel/Hospitality    0.042758
+    gas_price_per_gallon               0.038277
+    month                              0.029390
+    weather_condition_extreme_heat     0.025333
+    local_event_sports_game            0.005319
+    weather_condition_cloudy           0.001404
+    local_event_festival               0.000301
+    local_event_none                  -0.000311
+    local_event_conference            -0.000905
+    weather_condition_light_rain      -0.001342
+    local_event_concert               -0.004315
+    weather_condition_clear           -0.008317
+    weather_condition_partly_cloudy   -0.010068
+    Coffee Shop                       -0.015517
+    Fast Food                         -0.015517
+    temperature_f                     -0.017217
+    precipitation_mm                  -0.018167
+    charger_type_Tesla DC Fast        -0.019510
+    network_Tesla Supercharger        -0.019510
+    weather_condition_heavy_rain      -0.024995
+    day_of_week                       -0.052835
+    is_weekend                        -0.064354
+    Shopping Mall                     -0.157199
+    avg_session_duration_mins         -0.167384
+    location_type_Workplace           -0.174610
+    Restaurant                        -0.174610
+    network_ChargePoint               -0.175849
+    location_type_Residential         -0.175849
+    charger_type_Level 2              -0.175849
+    Convenience Store                 -0.286200
