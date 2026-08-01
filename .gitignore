@@ -9,6 +9,9 @@ __pycache__/
 data/
 *.csv
 
+# Machine learning model files
+models/*.joblib
+
 # Distribution / packaging
 .Python
 build/
