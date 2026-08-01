@@ -28,3 +28,5 @@ def train_models():
         lr_model,
         lr_prediction
     )
+
+station times = navie baseline any equation avg util rate

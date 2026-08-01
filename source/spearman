@@ -1,0 +1,46 @@
+Spearman:
+    target_util_30_ahead               1.000000
+    utilization_rate                   0.938574
+    util_30_mins_ago                   0.916336
+    traffic_congestion_index           0.426122
+    hour_of_day                        0.406061
+    is_peak_hour                       0.254299
+    location_type_Shopping Center      0.220405
+    Grocery Store                      0.176244
+    charger_type_DC Fast Charge        0.174196
+    Park                               0.136224
+    Hotel                              0.133716
+    network_Blink                      0.133716
+    WiFi                               0.124361
+    power_output_kw                    0.089339
+    network_Shell Recharge             0.079630
+    location_type_Hotel/Hospitality    0.079630
+    Restroom                           0.031027
+    temperature_f                      0.015149
+    Coffee Shop                        0.013135
+    Fast Food                          0.013135
+    gas_price_per_gallon               0.009325
+    weather_condition_cloudy           0.008268
+    local_event_conference             0.005625
+    local_event_sports_game            0.005417
+    weather_condition_partly_cloudy    0.004497
+    precipitation_mm                   0.001671
+    local_event_festival               0.001289
+    weather_condition_light_rain       0.001185
+    weather_condition_heavy_rain       0.000489
+    local_event_none                  -0.000746
+    weather_condition_extreme_heat    -0.001326
+    weather_condition_clear           -0.009478
+    local_event_concert               -0.011602
+    month                             -0.020057
+    day_of_week                       -0.052530
+    is_weekend                        -0.065019
+    network_Tesla Supercharger        -0.078152
+    charger_type_Tesla DC Fast        -0.078152
+    network_ChargePoint               -0.117630
+    charger_type_Level 2              -0.117630
+    location_type_Residential         -0.117630
+    Shopping Mall                     -0.133716
+    Restaurant                        -0.231940
+    location_type_Workplace           -0.231940
+    Convenience Store                 -0.285423
