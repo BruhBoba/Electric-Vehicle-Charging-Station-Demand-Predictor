@@ -60,6 +60,7 @@ project/
 │   └── austin_ev.csv
 │
 ├── source/
+│   ├── preprocess.py
 │   ├── ev_data_eda.py
 │   ├── features.py
 │   ├── model.py
@@ -110,19 +111,25 @@ They include:
 
 Run each stage of the pipeline in order.
 
-### 1. Data Preprocessing / EDA 
+### 1. Preprocess Dataset 
+```bash
+python source/preprocess.py
+```
+This script:
+- filters the dataset to Austin, TX only
+
+### 2. Data Preprocessing / EDA 
 ```bash
 python source/ev_data_eda.py
 ```
 This script:
-- loads the dataset
+- loads the austin_ev dataset
 - checks for missing values
 - checks for duplicate rows 
 - checks if utilization rate is within range
 - checks unique values in categorical columns
 
-### 2. Feature Engineering
-
+### 3. Feature Engineering
 ```bash
 python source/features.py
 ```
@@ -136,8 +143,7 @@ This script:
 - performs Pearson and Spearman correlation analysis
 - prepares Time Series training and testing datasets
 
-### 3. Train the Models
-
+### 4. Train the Models
 ```bash
 python source/model.py
 ```
@@ -147,8 +153,7 @@ This script trains:
 - Linear Regression
 - Naive Baseline 
 
-### 4. Evaluate Performance
-
+### 5. Evaluate Performance
 ```bash
 python source/model_evaluation.py
 ```
