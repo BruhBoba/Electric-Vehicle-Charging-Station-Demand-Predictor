@@ -1,7 +1,5 @@
 scikit-learn
 pandas 
 numpy 
-matplotlib.pyplot 
+matplotlib
 seaborn
-datetime 
-warnings
