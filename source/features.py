@@ -2,18 +2,22 @@
 import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
-from sklearn.model_selection import train_test_split
 
 # load dataset
 df = pd.read_csv('data/austin_ev.csv') 
-df = df.sort_values(by='timestamp')
 
-# util = utilization rate
-# new col to hold past timestamp's util rate
-df['util_30_mins_ago'] = df['utilization_rate'].shift(1)
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+df = df.sort_values(['station_id', 'timestamp'])
+# new col to hold past and future timestamp's util rate
+# This groups the station before shifting 
+df['util_30_mins_ago'] = df.groupby('station_id')['utilization_rate'].shift(1)
+df['target_util_30_ahead'] = df.groupby('station_id') ['utilization_rate'].shift(-1)
 
-# remove first row because new col is empty 
-df = df.dropna(subset=['util_30_mins_ago'])
+# drops the first row of each station because new col is empty 
+df = df.dropna(subset=['util_30_mins_ago', 'target_util_30_ahead'])
+
+# Confirms if NaN is each station's first row is gone 
+print(df.head())
 
 # remove features that cause leakage or unnecessary
 drop_cols = [
@@ -21,20 +25,24 @@ drop_cols = [
     "ports_total", "ports_available", "ports_occupied", 
     "ports_out_of_service", "estimated_wait_time_mins", 
     "current_price", "pricing_type", "station_status", 
-    "latitude", "longitude"
+    "latitude", "longitude", "avg_session_duration_mins"
 ]
 
 # make new df
 df_model = df.drop(columns=drop_cols)
 
 # assign x and y vals
-y = df_model['utilization_rate']
-x = df_model.drop(columns=['utilization_rate'])
+y = df_model['target_util_30_ahead']
+x = df_model.drop(columns=['target_util_30_ahead'])
 
+# split data by time series so train data is from Jul-Oct and test data is from Nov-Dec 
+df['timestamp'] = pd.to_datetime(df['timestamp']) 
+cutoff = pd.to_datetime('2025-11-01') 
+train_mask = df['timestamp'] <  cutoff       # Jul–Oct trains 
+test_mask  = df['timestamp'] >= cutoff       # Nov–Dec tests 
 
-# split data into 80/20 train/test
-#--------TO DO: REMOVE RANDOM STATE PARAM B4 DEPLOYING--------
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=117)
+x_train, x_test = x[train_mask], x[test_mask] 
+y_train, y_test = y[train_mask], y[test_mask]
 
 # properly encodes amenities feature which has various amenities in one long string
 amenities_encoded_train = x_train['amenities_nearby'].str.get_dummies(sep=', ')
@@ -59,75 +67,80 @@ x_train_encoded, x_test_encoded = x_train_encoded.align(
 )
 
 correlation_data = x_train_encoded.copy()
-correlation_data['utilization_rate'] = y_train
+correlation_data['target_util_30_ahead'] = y_train
 
 # pearson correlation: checks for linear relationships
 pearson = correlation_data.corr(method="pearson")
-pearson_target = pearson["utilization_rate"].sort_values(ascending=False)
+pearson_target = pearson["target_util_30_ahead"].sort_values(ascending=False)
 
 # spearman correlation: checks for any trends (monotonic)
 spearman = correlation_data.corr(method="spearman")
-spearman_target = spearman["utilization_rate"].sort_values(ascending=False)
+spearman_target = spearman["target_util_30_ahead"].sort_values(ascending=False)
 
+print("\nPearson")
+print(pearson_target)
+
+print("\nSpearman")
+print(spearman_target)
 
 # results are summarized below
 '''
 Strong Correlations (Absolute Value >= 0.2)
-    hour_of_day: Spearman (0.452600) | Pearson (0.453762)
-    traffic_congestion_index: Spearman (0.408028) | Pearson (0.378107)
-    util_30_mins_ago: Spearman (0.359966) | Pearson (0.368518)
-    Convenience Store: Spearman (-0.292414) | Pearson (-0.286200)
-    location_type_Shopping Center: Spearman (0.225600) | Pearson (0.251434)
-    Restaurant: Spearman (-0.239310) | Pearson (-0.174610)
-    location_type_Workplace: Spearman (-0.239310) | Pearson (-0.174610)
-    is_peak_hour: Spearman (0.229967) | Pearson (0.229136)
+    utilization_rate: Spearman (0.938574) | Pearson (0.927771)
+    util_30_mins_ago: Spearman (0.916336) | Pearson (0.903775)
+    traffic_congestion_index: Spearman (0.426122) | Pearson (0.404035)
+    hour_of_day: Spearman (0.406061) | Pearson (0.397594)
+    is_peak_hour: Spearman (0.254299) | Pearson (0.263299)
+    location_type_Shopping Center: Spearman (0.220405) | Pearson (0.246511)
+    Restaurant: Spearman (-0.231940) | Pearson (-0.164509)
+    location_type_Workplace: Spearman (-0.231940) | Pearson (-0.164509)
+    Convenience Store: Spearman (-0.285423) | Pearson (-0.277442)
 
 List 2: Weaker Correlations (Absolute Value < 0.2)
-    charger_type_DC Fast Charge: Spearman (0.181741) | Pearson (0.162964)
-    Grocery Store: Spearman (0.177667) | Pearson (0.158213)
-    network_ChargePoint: Spearman (-0.118603) | Pearson (-0.175849)
-    charger_type_Level 2: Spearman (-0.118603) | Pearson (-0.175849)
-    location_type_Residential: Spearman (-0.118603) | Pearson (-0.175849)
-    avg_session_duration_mins: Spearman (-0.086457) | Pearson (-0.167384)
-    network_Blink: Spearman (0.140918) | Pearson (0.157199)
-    Hotel: Spearman (0.140918) | Pearson (0.157199)
-    Shopping Mall: Spearman (-0.140918) | Pearson (-0.157199)
-    Park: Spearman (0.135676) | Pearson (0.151069)
-    WiFi: Spearman (0.128533) | Pearson (0.107670)
-    Restroom: Spearman (0.029688) | Pearson (0.108376)
-    power_output_kw: Spearman (0.087904) | Pearson (0.063340)
-    network_Shell Recharge: Spearman (0.081864) | Pearson (0.042758)
-    charger_type_Tesla DC Fast: Spearman (-0.084968) | Pearson (-0.019510)
-    network_Tesla Supercharger: Spearman (-0.084968) | Pearson (-0.019510)
-    location_type_Hotel/Hospitality: Spearman (0.081864) | Pearson (0.042758)
-    is_weekend: Spearman (-0.067602) | Pearson (-0.064354)
-    day_of_week: Spearman (-0.054446) | Pearson (-0.052835)
-    gas_price_per_gallon: Spearman (0.037365) | Pearson (0.038277)
-    month: Spearman (0.028624) | Pearson (0.029390)
-    weather_condition_heavy_rain: Spearman (-0.026641) | Pearson (-0.024995)
-    weather_condition_extreme_heat: Spearman (0.026303) | Pearson (0.025333)
-    precipitation_mm: Spearman (-0.012773) | Pearson (-0.018167)
-    Fast Food: Spearman (0.017960) | Pearson (-0.015517)
-    Coffee Shop: Spearman (0.017960) | Pearson (-0.015517)
-    temperature_f: Spearman (-0.013142) | Pearson (-0.017217)
-    weather_condition_partly_cloudy: Spearman (-0.010948) | Pearson (-0.010068)
-    weather_condition_clear: Spearman (-0.007721) | Pearson (-0.008317)
-    local_event_sports_game: Spearman (0.003660) | Pearson (0.005319)
-    local_event_concert: Spearman (-0.004824) | Pearson (-0.004315)
-    weather_condition_light_rain: Spearman (-0.002195) | Pearson (-0.001342)
-    weather_condition_cloudy: Spearman (0.001668) | Pearson (0.001404)
-    local_event_none: Spearman (0.001472) | Pearson (-0.000311)
-    local_event_festival: Spearman (-0.001301) | Pearson (0.000301)
-    local_event_conference: Spearman (-0.000679) | Pearson (-0.000905)
+    Grocery Store: Spearman (0.176244) | Pearson (0.155210)
+    charger_type_DC Fast Charge: Spearman (0.174196) | Pearson (0.153162)
+    network_ChargePoint: Spearman (-0.117630) | Pearson (-0.175286)
+    charger_type_Level 2: Spearman (-0.117630) | Pearson (-0.175286)
+    location_type_Residential: Spearman (-0.117630) | Pearson (-0.175286)
+    Park: Spearman (0.136224) | Pearson (0.152211)
+    Hotel: Spearman (0.133716) | Pearson (0.149702)
+    network_Blink: Spearman (0.133716) | Pearson (0.149702)
+    Shopping Mall: Spearman (-0.133716) | Pearson (-0.149702)
+    WiFi: Spearman (0.124361) | Pearson (0.103391)
+    Restroom: Spearman (0.031027) | Pearson (0.112190)
+    power_output_kw: Spearman (0.089339) | Pearson (0.066334)
+    network_Shell Recharge: Spearman (0.079630) | Pearson (0.037882)
+    location_type_Hotel/Hospitality: Spearman (0.079630) | Pearson (0.037882)
+    network_Tesla Supercharger: Spearman (-0.078152) | Pearson (-0.010042)
+    charger_type_Tesla DC Fast: Spearman (-0.078152) | Pearson (-0.010042)
+    is_weekend: Spearman (-0.065019) | Pearson (-0.059241)
+    day_of_week: Spearman (-0.052530) | Pearson (-0.048485)
+    month: Spearman (-0.020057) | Pearson (-0.020409)
+    Coffee Shop: Spearman (0.013135) | Pearson (-0.020889)
+    Fast Food: Spearman (0.013135) | Pearson (-0.020889)
+    temperature_f: Spearman (0.015149) | Pearson (0.016717)
+    gas_price_per_gallon: Spearman (0.009325) | Pearson (0.009575)
+    weather_condition_cloudy: Spearman (0.008268) | Pearson (0.008201)
+    local_event_sports_game: Spearman (0.005417) | Pearson (0.006528)
+    local_event_conference: Spearman (0.005625) | Pearson (0.004794)
+    weather_condition_partly_cloudy: Spearman (0.004497) | Pearson (0.004120)
+    precipitation_mm: Spearman (0.001671) | Pearson (0.002670)
+    local_event_festival: Spearman (0.001289) | Pearson (0.002196)
+    weather_condition_light_rain: Spearman (0.001185) | Pearson (0.001552)
+    weather_condition_heavy_rain: Spearman (0.000489) | Pearson (0.000074)
+    local_event_none: Spearman (-0.000746) | Pearson (-0.001218)
+    weather_condition_extreme_heat: Spearman (-0.001326) | Pearson (-0.001084)
+    weather_condition_clear: Spearman (-0.009478) | Pearson (-0.009512)
+    local_event_concert: Spearman (-0.011602) | Pearson (-0.011814)
 '''
 
 # decided based on comment above
 features_to_keep = [
     'hour_of_day', 
-    'traffic_congestion_index', 
+    'traffic_congestion_index',
+    'utilization_rate', 
     'util_30_mins_ago', 
     'is_peak_hour', 
-    'avg_session_duration_mins',
     'Convenience Store', 
     'Restaurant', 
     'Grocery Store', 

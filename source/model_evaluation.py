@@ -27,7 +27,7 @@ improvement = ((lr_mae - rf_mae) / lr_mae) * 100
 print(f"Random Forest reduced prediction error by {improvement:.2f}%")
 
 """
-Looking at the results for Random forest the MAE is 0.0724, RMSE is 0.1201, and R² is 0.8682. For Linear 
+Looking at the results for Random forest the MAE is 0.0724, RMSE is 0.1201, and R²(accuracy) is 0.8682. For Linear 
 Regression, the MAE is 0.2204, RMSE is 0.2666, and R² is 0.3506. Which concludes that Random Forest 
 overperformed Linear Regression because it shows the relationships in EV charging demand more effectively. 
 """
