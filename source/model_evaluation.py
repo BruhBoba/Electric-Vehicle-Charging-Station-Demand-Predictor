@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import joblib
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from features import prepare_data 
 from model import train_models
@@ -180,3 +181,10 @@ plt.show()
 # Negative bars = model overpredicts in that range
 # Model underpredicts high-demand periods for 0.8–1.0 utilization by an average of 0.098 bias and for 0.4–0.6 utilization
 # it overpredicts. 
+
+
+# Saving the Random Forest model 
+joblib.dump(rf_model, "models/random_forest.joblib")
+joblib.dump(list(x_train_final.columns), "models/features.joblib")
+
+print("Model saved successfully!")
