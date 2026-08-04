@@ -8,7 +8,6 @@ features = joblib.load('models/features.joblib')
 st.title("EV Charging Demand Predictor")
 st.write("Predict station utilization 30 minutes in advance!")
 
-'''
 # Create input widgets for user interaction
 hour = st.slider("Hour of Day", 0, 23, 14)
 traffic = st.slider("Traffic Congestion Index", 0.0, 1.0, 0.5)
@@ -26,4 +25,3 @@ if st.button("Predict 30-Min Demand"):
     prediction = model.predict(input_data)[0]
     st.success(f"Predicted Utilization: {prediction * 100:.1f}%")
 
-'''
