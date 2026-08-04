@@ -5,6 +5,7 @@ import joblib
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from features import prepare_data 
 from model import train_models
+import os
 
 x_train_final, x_test_final, y_train, y_test = prepare_data()
 rf_model, rf_prediction, lr_model, lr_prediction, baseline_prediction = train_models()
@@ -183,8 +184,16 @@ plt.show()
 # it overpredicts. 
 
 
-# Saving the Random Forest model 
-joblib.dump(rf_model, "models/random_forest.joblib")
+
+# This line forces Python to create the folder if it's missing, 
+# preventing the FileNotFoundError from ever happening again!
+os.makedirs("models", exist_ok=True)
+
+
+# Add compress=3 to the random_forest save line!
+# saving the random forst model
+joblib.dump(rf_model, "models/random_forest.joblib", compress=3)
 joblib.dump(list(x_train_final.columns), "models/features.joblib")
+
 
 print("Model saved successfully!")

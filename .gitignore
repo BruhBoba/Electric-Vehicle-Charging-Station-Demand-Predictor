@@ -10,7 +10,7 @@ data/
 *.csv
 
 # Machine learning model files
-models/*.joblib
+#models/*.joblib
 
 # Distribution / packaging
 .Python
