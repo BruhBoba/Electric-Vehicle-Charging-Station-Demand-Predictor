@@ -7,7 +7,6 @@ __pycache__/
 
 # Large CSV files 
 data/
-*.csv
 
 # Machine learning model files
 #models/*.joblib
